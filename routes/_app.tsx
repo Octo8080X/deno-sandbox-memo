@@ -19,7 +19,7 @@ export default define.page(function App({ Component }) {
             </div>
             <nav class="flex gap-2">
               <a
-                href="https://github.com/Octo8080X/deno-sandbox-api-test"
+                href="https://github.com/Octo8080X/deno-sandbox-memo"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-neutral shadow-lg hover:scale-105 transition-transform"
