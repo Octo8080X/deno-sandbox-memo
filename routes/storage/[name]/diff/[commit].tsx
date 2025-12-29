@@ -4,17 +4,17 @@ import DiffViewer from "../../../../islands/DiffViewer.tsx";
 
 export default define.page(function DiffPage(ctx) {
   return (
-    <div class="page">
+    <div class="max-w-5xl mx-auto px-4 py-10 space-y-6">
       <Head>
         <title>Diff {ctx.params.name} @ {ctx.params.commit}</title>
       </Head>
-      <header class="page__header">
-        <div>
-          <p class="eyebrow">Diff</p>
-          <h1 class="title">{ctx.params.name}</h1>
-          <p class="muted">Commit {ctx.params.commit}</p>
+      <header class="flex items-start justify-between gap-4">
+        <div class="space-y-1">
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Diff</p>
+          <h1 class="text-3xl font-bold break-all">{ctx.params.name}</h1>
+          <p class="text-base-content/70">Commit {ctx.params.commit}</p>
         </div>
-        <a class="button" href={`/storage/${ctx.params.name}`}>Back</a>
+        <a class="btn btn-ghost" href={`/storage/${ctx.params.name}`}>Back</a>
       </header>
       <DiffViewer name={ctx.params.name} commit={ctx.params.commit} />
     </div>

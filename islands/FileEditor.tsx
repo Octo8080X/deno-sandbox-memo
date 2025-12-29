@@ -66,14 +66,14 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
   };
 
   return (
-    <div class="editor">
-      <div class="editor__header">
-        <div>
-          <p class="eyebrow">Editing</p>
-          <h2 class="title">{name}</h2>
+    <div class="card bg-base-100 shadow-sm border border-base-200 p-4 space-y-4">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-1">
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Editing</p>
+          <h2 class="text-2xl font-bold break-all">{name}</h2>
         </div>
         <button
-          class="button primary"
+          class={`btn btn-primary ${status.value === "saving" ? "loading" : ""}`}
           disabled={status.value === "saving"}
           onClick={save}
         >
@@ -81,13 +81,14 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
         </button>
       </div>
       {onLoading && (
-        <p class="muted">
-          <span class="loading-spinner" aria-label="Loading" /> Loading
+        <p class="flex items-center gap-2 text-sm text-base-content/70">
+          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span>Loading</span>
         </p>
       )}
       {!onLoading && (
         <textarea
-          class="textarea editor__textarea"
+          class="textarea textarea-bordered w-full min-h-[24rem]"
           value={content.value ?? ""}
           onInput={(e) => {
             const target = e.currentTarget as HTMLTextAreaElement;
@@ -97,7 +98,9 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
         />
       )}
       {message.value && (
-        <p class={status.value === "error" ? "muted" : "muted"}>
+        <p
+          class={`alert shadow-sm ${status.value === "error" ? "alert-error" : "alert-success"}`}
+        >
           {message.value}
         </p>
       )}

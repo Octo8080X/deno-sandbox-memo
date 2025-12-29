@@ -210,21 +210,24 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
   };
 
   return (
-    <div class="commits" style={{ marginTop: "16px" }}>
-      <header class="section-header">
-        <div>
-          <p class="eyebrow">Diff</p>
-          <h2 class="title">Commit {commit}</h2>
+    <div
+      class="card bg-base-100 shadow-sm border border-base-200 p-4 space-y-4"
+      style={{ marginTop: "16px" }}
+    >
+      <header class="flex flex-wrap items-start justify-between gap-3">
+        <div class="space-y-1">
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Diff</p>
+          <h2 class="text-2xl font-bold break-all">Commit {commit}</h2>
         </div>
-        <div class="diff-toolbar">
+        <div class="flex gap-2 flex-wrap">
           <button
-            class={`button ${view.value === "split" ? "primary" : "ghost"}`}
+            class={`btn btn-outline ${view.value === "split" ? "btn-active" : ""}`}
             onClick={() => (view.value = "split")}
           >
             Split
           </button>
           <button
-            class={`button ${view.value === "before" ? "primary" : "ghost"}`}
+            class={`btn btn-outline ${view.value === "before" ? "btn-active" : ""}`}
             onClick={() => {
               view.value = "before";
               fetchSnapshotIfNeeded();
@@ -233,7 +236,7 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
             Before
           </button>
           <button
-            class={`button ${view.value === "after" ? "primary" : "ghost"}`}
+            class={`btn btn-outline ${view.value === "after" ? "btn-active" : ""}`}
             onClick={() => {
               view.value = "after";
               fetchSnapshotIfNeeded();
@@ -242,7 +245,7 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
             After
           </button>
           <button
-            class={`button danger ${restoreLoading.value ? "loading" : ""}`}
+            class={`btn btn-error ${restoreLoading.value ? "loading" : ""}`}
             onClick={handleRestore}
           >
             {restoreLoading.value ? "Restoring..." : "Restore"}
@@ -251,57 +254,54 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
       </header>
 
       {restoreDone.value && (
-        <p class="muted" role="status">{restoreDone.value}</p>
+        <p class="alert alert-success shadow-sm" role="status">{restoreDone.value}</p>
       )}
       {restoreError.value && (
-        <p class="muted" role="alert">{restoreError.value}</p>
+        <p class="alert alert-error shadow-sm" role="alert">{restoreError.value}</p>
       )}
 
       {(view.value === "before" || view.value === "after") &&
         snapshotLoading.value && (
-        <p class="muted">
-          <span class="loading-spinner" aria-label="Loading" />{" "}
-          Loading snapshot...
+        <p class="flex items-center gap-2 text-sm text-base-content/70">
+          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span>Loading snapshot...</span>
         </p>
       )}
       {(view.value === "before" || view.value === "after") &&
         snapshotError.value && !snapshotLoading.value && (
-        <p class="muted">{snapshotError.value}</p>
+        <p class="alert alert-error shadow-sm">{snapshotError.value}</p>
       )}
 
       {loading.value && (
-        <p class="muted">
-          <span class="loading-spinner" aria-label="Loading" /> Loading diff...
+        <p class="flex items-center gap-2 text-sm text-base-content/70">
+          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span>Loading diff...</span>
         </p>
       )}
-      {error.value && !loading.value && <p class="muted">{error.value}</p>}
+      {error.value && !loading.value && (
+        <p class="alert alert-error shadow-sm">{error.value}</p>
+      )}
 
       {!loading.value && !error.value && view.value === "split" && (
-        <div class="diff-block diff-split">
+        <div class="rounded-lg border border-base-300 bg-base-200 shadow-sm overflow-hidden">
           {metaOnly.length > 0 && (
-            <div class="diff-meta-block">
+            <div class="px-4 py-3 text-sm bg-base-300 border-b border-base-200 font-mono text-base-content/80">
               {metaOnly.map((line, idx) => (
-                <div key={idx} class="diff-meta-line">
+                <div key={idx} class="leading-relaxed">
                   <code>{line.text}</code>
                 </div>
               ))}
             </div>
           )}
           {hunkRows.length === 0 && (
-            <p class="muted" style={{ padding: "10px" }}>(no diff)</p>
+            <p class="px-4 py-3 text-base-content/70 text-sm">(no diff)</p>
           )}
           {hunkRows.length > 0 && (
-            <div class="split-head">
-              <div
-                class="split-cell label"
-                style={{ gridColumn: "1 / span 2" }}
-              >
+            <div class="grid grid-cols-[64px_1fr_64px_1fr] border-b border-base-300 bg-base-300 text-xs font-semibold uppercase text-base-content">
+              <div class="px-3 py-2" style={{ gridColumn: "1 / span 2" }}>
                 Before
               </div>
-              <div
-                class="split-cell label"
-                style={{ gridColumn: "3 / span 2" }}
-              >
+              <div class="px-3 py-2" style={{ gridColumn: "3 / span 2" }}>
                 After
               </div>
             </div>
@@ -309,8 +309,11 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
           {hunkRows.map((line, idx) => {
             if (line.type === "meta") {
               return (
-                <div class="split-row meta" key={idx}>
-                  <div class="split-cell meta">
+                <div
+                  class="grid grid-cols-[64px_1fr_64px_1fr] border-b border-base-300 bg-base-300 font-semibold text-base-content"
+                  key={idx}
+                >
+                  <div class="px-3 py-2 col-span-4 whitespace-pre-wrap">
                     <code>{line.text}</code>
                   </div>
                 </div>
@@ -319,15 +322,27 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
 
             const oldText = line.type === "add" ? "" : line.text;
             const newText = line.type === "del" ? "" : line.text;
+            const rowClass = line.type === "add"
+              ? "bg-success/20 text-success-content"
+              : line.type === "del"
+              ? "bg-error/20 text-error-content"
+              : "";
 
             return (
-              <div class={`split-row ${line.type}`} key={idx}>
-                <div class="split-cell line-no">{line.oldLine ?? ""}</div>
-                <div class="split-cell code old">
+              <div
+                class={`grid grid-cols-[64px_1fr_64px_1fr] border-b border-base-300 text-sm font-mono whitespace-pre-wrap ${rowClass}`}
+                key={idx}
+              >
+                <div class="px-3 py-2 text-right text-xs text-base-content/70 font-mono align-top">
+                  {line.oldLine ?? ""}
+                </div>
+                <div class="px-3 py-2 align-top whitespace-pre-wrap">
                   <code>{oldText || " "}</code>
                 </div>
-                <div class="split-cell line-no">{line.newLine ?? ""}</div>
-                <div class="split-cell code new">
+                <div class="px-3 py-2 text-right text-xs text-base-content/70 font-mono align-top">
+                  {line.newLine ?? ""}
+                </div>
+                <div class="px-3 py-2 align-top whitespace-pre-wrap">
                   <code>{newText || " "}</code>
                 </div>
               </div>
@@ -338,15 +353,20 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
 
       {view.value === "before" && !snapshotLoading.value &&
         !snapshotError.value && (
-        <div class="diff-block">
+        <div class="rounded-lg border border-base-300 bg-base-200 shadow-sm overflow-hidden">
           {beforeContent.value === null && (
-            <p class="muted">(no parent snapshot)</p>
+            <p class="px-4 py-3 text-base-content/70">(no parent snapshot)</p>
           )}
           {beforeContent.value !== null &&
             lines.map((line, idx) => (
-              <div class="diff-line" key={idx}>
-                <span class="line-no">{idx + 1}</span>
-                <code>{line || " "}</code>
+              <div
+                class="grid grid-cols-[56px_1fr] border-b border-base-300 text-sm font-mono whitespace-pre-wrap"
+                key={idx}
+              >
+                <span class="px-3 py-2 text-right text-xs text-base-content/70 font-mono">
+                  {idx + 1}
+                </span>
+                <code class="px-3 py-2 whitespace-pre-wrap block">{line || " "}</code>
               </div>
             ))}
         </div>
@@ -354,15 +374,20 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
 
       {view.value === "after" && !snapshotLoading.value &&
         !snapshotError.value && (
-        <div class="diff-block">
+        <div class="rounded-lg border border-base-300 bg-base-200 shadow-sm overflow-hidden">
           {afterContent.value === null && (
-            <p class="muted">(file not present in commit)</p>
+            <p class="px-4 py-3 text-base-content/70">(file not present in commit)</p>
           )}
           {afterContent.value !== null &&
             lines.map((line, idx) => (
-              <div class="diff-line" key={idx}>
-                <span class="line-no">{idx + 1}</span>
-                <code>{line || " "}</code>
+              <div
+                class="grid grid-cols-[56px_1fr] border-b border-base-300 text-sm font-mono whitespace-pre-wrap"
+                key={idx}
+              >
+                <span class="px-3 py-2 text-right text-xs text-base-content/70 font-mono">
+                  {idx + 1}
+                </span>
+                <code class="px-3 py-2 whitespace-pre-wrap block">{line || " "}</code>
               </div>
             ))}
         </div>

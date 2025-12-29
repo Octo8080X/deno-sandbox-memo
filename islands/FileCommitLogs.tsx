@@ -44,43 +44,51 @@ export default function FileCommitLogs({ name, sync }: FileCommitLogsProps) {
   }, [name, sync.value]);
 
   return (
-    <div class="commits" style={{ marginTop: "16px" }}>
-      <header class="section-header">
-        <div>
-          <p class="eyebrow">History</p>
-          <h2 class="title">Commits</h2>
+    <div
+      class="card bg-base-100 shadow-sm border border-base-200 p-4 space-y-4"
+      style={{ marginTop: "16px" }}
+    >
+      <header class="flex items-start justify-between gap-3">
+        <div class="space-y-1">
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">History</p>
+          <h2 class="text-2xl font-bold">Commits</h2>
         </div>
       </header>
       {loading.value && (
-        <p class="muted">
-          <span class="loading-spinner" aria-label="Loading" />{" "}
-          Loading commits...
+        <p class="flex items-center gap-2 text-sm text-base-content/70">
+          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span>Loading commits...</span>
         </p>
       )}
-      {error.value && !loading.value && <p class="muted">{error.value}</p>}
+      {error.value && !loading.value && (
+        <p class="alert alert-error shadow-sm">{error.value}</p>
+      )}
       {!loading.value && !error.value && commits.value.length === 0 && (
-        <p class="muted">No commits yet.</p>
+        <p class="alert alert-info shadow-sm">No commits yet.</p>
       )}
       {!loading.value && commits.value.length > 0 && (
-        <ul class="commit-list">
+        <ul class="space-y-3">
           {commits.value.map((c) => (
-            <li class="commit" key={c.hash}>
-              <div>
-                <p class="commit__title">{c.message || "(no message)"}</p>
-                <p class="muted">
+            <li
+              class="border border-base-200 rounded-lg p-3 flex items-start justify-between gap-3"
+              key={c.hash}
+            >
+              <div class="space-y-1">
+                <p class="font-semibold">{c.message || "(no message)"}</p>
+                <p class="text-sm text-base-content/70">
                   {new Date(c.date).toLocaleString()} — {c.author}
                 </p>
               </div>
-              <div class="actions">
+              <div class="flex items-center gap-2">
                 <a
-                  class="button ghost"
+                  class="btn btn-ghost btn-sm"
                   href={`/storage/${encodeURIComponent(name)}/diff/${c.hash}`}
                 >
                   Diff
                 </a>
-                <code class="muted" style={{ fontSize: "12px" }}>
+                <span class="badge badge-outline badge-sm font-mono">
                   {c.hash.slice(0, 8)}
-                </code>
+                </span>
               </div>
             </li>
           ))}

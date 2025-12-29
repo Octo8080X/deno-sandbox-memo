@@ -1,6 +1,7 @@
 import { define } from "../../utils.ts";
 import { errorResponse, parseBody, redirectResponse } from "../../lib/http.ts";
 import { getStorageApi } from "../../lib/sandoboxGit.ts";
+import { deleteCache } from "../../lib/kvCache.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -15,6 +16,7 @@ export const handler = define.handlers({
     // simple slug based on timestamp for uniqueness
     try {
       await createFile(content);
+      await deleteCache("home_files")
       return redirectResponse(`/`);
     } catch (err) {
       console.error(err);
