@@ -7,6 +7,16 @@ export default define.page(function App({ Component }) {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:title" content="Deno Sandbox Memo by git" />
+        <meta
+          property="og:description"
+          content="A sandbox memo application using Deno Deploy Sandbox and git."
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          property="og:image"
+          content="https://deno-sandbox-memo.octo8080x.deno.net/ogp.png"
+        />
         <title>deno-sandbox-memo</title>
       </head>
       <body class="bg-base-200 text-base-content pb-24">
