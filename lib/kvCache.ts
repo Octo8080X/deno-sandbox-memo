@@ -4,14 +4,13 @@ const CACHE_KEY = `kvCache` as const;
 const store = await Deno.openKv();
 
 export async function getCacheKey(key: string): Promise<string[]> {
-  let parentKey = await store.get(["KV_CACHE_PARENT_KEY"]);
-  if (parentKey) {
+  const parentKey = await store.get(["KV_CACHE_PARENT_KEY"]);
+  if (parentKey!== null && parentKey.value != null) {
     return [parentKey.value, CACHE_KEY, key];
   }
-  parentKey = crypto.randomUUID();
-  await store.set(["KV_CACHE_PARENT_KEY"], parentKey, { ttl: 120 });
-
-  return [CACHE_KEY, parentKey!, key];
+  const parentKeyValue = crypto.randomUUID();
+  await store.set(["KV_CACHE_PARENT_KEY"], parentKeyValue, { ttl: 120 });
+  return [parentKeyValue, CACHE_KEY, key];
 }
 export async function setCache<T>(
   id: string,
