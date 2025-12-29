@@ -114,8 +114,9 @@ export async function initSandBoxStorage() {
 }
 
 export async function getStorageApi() {
-  const createSandbox = async (volumes: { [key: string]: string }) =>
-    await Sandbox.create({
+  const createSandbox = async (volumes: { [key: string]: string }) => {
+    console.log("createSandbox volumes:", volumes);
+    const sandbox = await Sandbox.create({
       memoryMb: 4096,
       volumes,
       env: {
@@ -123,6 +124,10 @@ export async function getStorageApi() {
       },
       region: "ord",
     });
+    console.log("createSandbox");
+
+    return sandbox;
+  }
 
   const withSandbox = async <T>(
     fn: (sandbox: Sandbox) => Promise<T>,
