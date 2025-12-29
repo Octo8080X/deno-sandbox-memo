@@ -17,7 +17,9 @@ export default define.page(async function Home() {
       <section class="space-y-4">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Memo Files</p>
+            <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">
+              Memo Files
+            </p>
           </div>
         </div>
 

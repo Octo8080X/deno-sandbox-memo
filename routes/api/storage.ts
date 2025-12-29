@@ -16,7 +16,7 @@ export const handler = define.handlers({
     // simple slug based on timestamp for uniqueness
     try {
       await createFile(content);
-      await deleteCache("home_files")
+      await deleteCache("home_files");
       return redirectResponse(`/`);
     } catch (err) {
       console.error(err);

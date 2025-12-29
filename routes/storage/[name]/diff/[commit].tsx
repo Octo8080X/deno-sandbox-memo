@@ -10,7 +10,9 @@ export default define.page(function DiffPage(ctx) {
       </Head>
       <header class="flex items-start justify-between gap-4">
         <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Diff</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">
+            Diff
+          </p>
           <h1 class="text-3xl font-bold break-all">{ctx.params.name}</h1>
           <p class="text-base-content/70">Commit {ctx.params.commit}</p>
         </div>

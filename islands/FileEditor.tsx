@@ -69,11 +69,15 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
     <div class="card bg-base-100 shadow-sm border border-base-200 p-4 space-y-4">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Editing</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">
+            Editing
+          </p>
           <h2 class="text-2xl font-bold break-all">{name}</h2>
         </div>
         <button
-          class={`btn btn-primary ${status.value === "saving" ? "loading" : ""}`}
+          class={`btn btn-primary ${
+            status.value === "saving" ? "loading" : ""
+          }`}
           disabled={status.value === "saving"}
           onClick={save}
         >
@@ -82,7 +86,10 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
       </div>
       {onLoading && (
         <p class="flex items-center gap-2 text-sm text-base-content/70">
-          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span
+            class="loading loading-spinner loading-sm"
+            aria-label="Loading"
+          />
           <span>Loading</span>
         </p>
       )}
@@ -99,7 +106,9 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
       )}
       {message.value && (
         <p
-          class={`alert shadow-sm ${status.value === "error" ? "alert-error" : "alert-success"}`}
+          class={`alert shadow-sm ${
+            status.value === "error" ? "alert-error" : "alert-success"
+          }`}
         >
           {message.value}
         </p>

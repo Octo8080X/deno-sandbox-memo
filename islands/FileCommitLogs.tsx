@@ -50,13 +50,18 @@ export default function FileCommitLogs({ name, sync }: FileCommitLogsProps) {
     >
       <header class="flex items-start justify-between gap-3">
         <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">History</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">
+            History
+          </p>
           <h2 class="text-2xl font-bold">Commits</h2>
         </div>
       </header>
       {loading.value && (
         <p class="flex items-center gap-2 text-sm text-base-content/70">
-          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span
+            class="loading loading-spinner loading-sm"
+            aria-label="Loading"
+          />
           <span>Loading commits...</span>
         </p>
       )}

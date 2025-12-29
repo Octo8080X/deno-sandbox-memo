@@ -216,18 +216,24 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
     >
       <header class="flex flex-wrap items-start justify-between gap-3">
         <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">Diff</p>
+          <p class="text-xs uppercase tracking-[0.2em] text-base-content/60">
+            Diff
+          </p>
           <h2 class="text-2xl font-bold break-all">Commit {commit}</h2>
         </div>
         <div class="flex gap-2 flex-wrap">
           <button
-            class={`btn btn-outline ${view.value === "split" ? "btn-active" : ""}`}
+            class={`btn btn-outline ${
+              view.value === "split" ? "btn-active" : ""
+            }`}
             onClick={() => (view.value = "split")}
           >
             Split
           </button>
           <button
-            class={`btn btn-outline ${view.value === "before" ? "btn-active" : ""}`}
+            class={`btn btn-outline ${
+              view.value === "before" ? "btn-active" : ""
+            }`}
             onClick={() => {
               view.value = "before";
               fetchSnapshotIfNeeded();
@@ -236,7 +242,9 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
             Before
           </button>
           <button
-            class={`btn btn-outline ${view.value === "after" ? "btn-active" : ""}`}
+            class={`btn btn-outline ${
+              view.value === "after" ? "btn-active" : ""
+            }`}
             onClick={() => {
               view.value = "after";
               fetchSnapshotIfNeeded();
@@ -254,16 +262,23 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
       </header>
 
       {restoreDone.value && (
-        <p class="alert alert-success shadow-sm" role="status">{restoreDone.value}</p>
+        <p class="alert alert-success shadow-sm" role="status">
+          {restoreDone.value}
+        </p>
       )}
       {restoreError.value && (
-        <p class="alert alert-error shadow-sm" role="alert">{restoreError.value}</p>
+        <p class="alert alert-error shadow-sm" role="alert">
+          {restoreError.value}
+        </p>
       )}
 
       {(view.value === "before" || view.value === "after") &&
         snapshotLoading.value && (
         <p class="flex items-center gap-2 text-sm text-base-content/70">
-          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span
+            class="loading loading-spinner loading-sm"
+            aria-label="Loading"
+          />
           <span>Loading snapshot...</span>
         </p>
       )}
@@ -274,7 +289,10 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
 
       {loading.value && (
         <p class="flex items-center gap-2 text-sm text-base-content/70">
-          <span class="loading loading-spinner loading-sm" aria-label="Loading" />
+          <span
+            class="loading loading-spinner loading-sm"
+            aria-label="Loading"
+          />
           <span>Loading diff...</span>
         </p>
       )}
@@ -366,7 +384,9 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
                 <span class="px-3 py-2 text-right text-xs text-base-content/70 font-mono">
                   {idx + 1}
                 </span>
-                <code class="px-3 py-2 whitespace-pre-wrap block">{line || " "}</code>
+                <code class="px-3 py-2 whitespace-pre-wrap block">
+                  {line || " "}
+                </code>
               </div>
             ))}
         </div>
@@ -376,7 +396,9 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
         !snapshotError.value && (
         <div class="rounded-lg border border-base-300 bg-base-200 shadow-sm overflow-hidden">
           {afterContent.value === null && (
-            <p class="px-4 py-3 text-base-content/70">(file not present in commit)</p>
+            <p class="px-4 py-3 text-base-content/70">
+              (file not present in commit)
+            </p>
           )}
           {afterContent.value !== null &&
             lines.map((line, idx) => (
@@ -387,7 +409,9 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
                 <span class="px-3 py-2 text-right text-xs text-base-content/70 font-mono">
                   {idx + 1}
                 </span>
-                <code class="px-3 py-2 whitespace-pre-wrap block">{line || " "}</code>
+                <code class="px-3 py-2 whitespace-pre-wrap block">
+                  {line || " "}
+                </code>
               </div>
             ))}
         </div>
