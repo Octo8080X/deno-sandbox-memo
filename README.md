@@ -1,17 +1,48 @@
-# Fresh project
+# Deno Sand box Memo by git
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+A memo application that uses Deno Sandbox to run git commands securely.
 
-### Usage
+## Environment
 
-Make sure to install Deno:
-https://docs.deno.com/runtime/getting_started/installation
-
-Then start the project in development mode:
+Create a `.env` at the project root before setup. Minimum required values:
 
 ```
+SANDBOX_GIT_BASE=<absolute path to the working repo dir>
+```
+
+## Setup
+
+Install dependencies and prepare the sandbox:
+
+```bash
+deno task setup
+```
+
+## Run
+
+Start the app:
+
+```bash
 deno task dev
 ```
 
-This will watch the project directory and restart as necessary.
+## What this app is
+
+This app manages memos by running git inside Deno Sandbox. Each memo is stored and versioned via git commands executed within the sandboxed environment, providing history, diffs, and restore operations while keeping execution isolated.
+
+## 📄 License
+
+MIT
+
+---
+
+Built with ❤️ using Deno.
+
+<a href="https://fresh.deno.dev">
+  <img
+    width="197"
+    height="37"
+    src="https://fresh.deno.dev/fresh-badge.svg"
+    alt="Made with Fresh"
+  />
+</a>
