@@ -17,6 +17,11 @@ export default define.page(function App({ Component }) {
           property="og:image"
           content="https://deno-sandbox-memo.octo8080x.deno.net/ogp.png"
         />
+        <meta
+          property="twitter:image"
+          content="https://deno-sandbox-memo.octo8080x.deno.net/ogp.png"
+        />
+
         <title>deno-sandbox-memo</title>
       </head>
       <body class="bg-base-200 text-base-content pb-24">
