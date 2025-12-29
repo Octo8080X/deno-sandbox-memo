@@ -2,6 +2,9 @@
 
 A memo application that uses Deno Sandbox to run git commands securely.
 
+![](./static/001.png)
+![](./static/002.png)
+
 ## Environment
 
 Create a `.env` at the project root before setup. Minimum required values:
