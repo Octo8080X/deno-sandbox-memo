@@ -1,7 +1,7 @@
 //// <reference lib="deno.unstable" />
 const CACHE_KEY = `kvCache` as const;
 
-const store = await Deno.openKv("./tmp/kv_cache_store");
+const store = await Deno.openKv("");
 
 export async function getCacheKey(key: string): Promise<string[]> {
   const parentKey = await store.get(["KV_CACHE_PARENT_KEY"]);
