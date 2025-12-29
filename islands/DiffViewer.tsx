@@ -340,28 +340,28 @@ export default function DiffViewer({ name, commit }: DiffViewerProps) {
 
             const oldText = line.type === "add" ? "" : line.text;
             const newText = line.type === "del" ? "" : line.text;
-            const rowClass = line.type === "add"
-              ? "bg-success/20 text-success-content"
+
+            const baseRowClass =
+              "grid grid-cols-[64px_1fr_64px_1fr] border-b border-base-300 text-sm font-mono whitespace-pre-wrap text-base-content";
+            const rowHighlight = line.type === "add"
+              ? "bg-success/15 border-l-4 border-success/60"
               : line.type === "del"
-              ? "bg-error/20 text-error-content"
-              : "";
+              ? "bg-error/15 border-l-4 border-error/60"
+              : "bg-base-100";
 
             return (
-              <div
-                class={`grid grid-cols-[64px_1fr_64px_1fr] border-b border-base-300 text-sm font-mono whitespace-pre-wrap ${rowClass}`}
-                key={idx}
-              >
+              <div class={`${baseRowClass} ${rowHighlight}`} key={idx}>
                 <div class="px-3 py-2 text-right text-xs text-base-content/70 font-mono align-top">
                   {line.oldLine ?? ""}
                 </div>
                 <div class="px-3 py-2 align-top whitespace-pre-wrap">
-                  <code>{oldText || " "}</code>
+                  <code class="text-base-content">{oldText || " "}</code>
                 </div>
                 <div class="px-3 py-2 text-right text-xs text-base-content/70 font-mono align-top">
                   {line.newLine ?? ""}
                 </div>
                 <div class="px-3 py-2 align-top whitespace-pre-wrap">
-                  <code>{newText || " "}</code>
+                  <code class="text-base-content">{newText || " "}</code>
                 </div>
               </div>
             );
