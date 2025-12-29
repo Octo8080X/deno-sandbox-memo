@@ -1,33 +1,52 @@
-import { useSignal } from "@preact/signals";
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
-import Counter from "../islands/Counter.tsx";
+import { getStorageApi } from "../lib/sandoboxGit.ts";
+import { fetchCache } from "../lib/kvCache.ts";
 
-export default define.page(function Home(ctx) {
-  const count = useSignal(3);
-
-  console.log("Shared value " + ctx.state.shared);
+export default define.page(async function Home() {
+  // sandbox 経由でファイルの一覧を取得
+  const { getFiles } = await getStorageApi();
+  const files = await fetchCache<string[]>("home_files", getFiles) as string[];
 
   return (
-    <div class="px-4 py-8 mx-auto fresh-gradient min-h-screen">
+    <div class="page">
       <Head>
-        <title>Fresh counter</title>
+        <title>Memo List</title>
       </Head>
-      <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
-        <img
-          class="my-6"
-          src="/logo.svg"
-          width="128"
-          height="128"
-          alt="the Fresh logo: a sliced lemon dripping with juice"
-        />
-        <h1 class="text-4xl font-bold">Welcome to Fresh</h1>
-        <p class="my-4">
-          Try updating this message in the
-          <code class="mx-2">./routes/index.tsx</code> file, and refresh.
-        </p>
-        <Counter count={count} />
-      </div>
+
+      <section class="files">
+        <div class="page__header">
+          <div>
+            <p class="eyebrow">Memo Files</p>
+          </div>
+        </div>
+
+        {files.length === 0 && (
+          <div class="empty">
+            <p>No files in storage.</p>
+            <p class="muted">Add a memo to see it here.</p>
+          </div>
+        )}
+
+        {files.length > 0 && (
+          <ul class="note-grid">
+            {files.map((file) => (
+              <li class="note-card" key={file}>
+                <a
+                  class="note-card__link"
+                  href={`/storage/${encodeURIComponent(file)}`}
+                >
+                  <div class="note-card__icon" aria-hidden="true">📄</div>
+                  <div>
+                    <h2>{file}</h2>
+                    <p class="preview muted">Click to open</p>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 });

@@ -7,6 +7,9 @@
     "start": "deno serve -A _fresh/server.js",
     "update": "deno run -A -r jsr:@fresh/update ."
   },
+  "unstable": [
+    "kv"
+  ],
   "lint": {
     "rules": {
       "tags": [
@@ -20,6 +23,8 @@
   ],
   "imports": {
     "@/": "./",
+    "@deno/sandbox": "jsr:@deno/sandbox@^0.5.0",
+    "daisyui": "npm:daisyui@^5.5.14",
     "fresh": "jsr:@fresh/core@^2.2.0",
     "preact": "npm:preact@^10.27.2",
     "@preact/signals": "npm:@preact/signals@^2.5.0",

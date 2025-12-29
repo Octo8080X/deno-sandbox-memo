@@ -9,6 +9,17 @@ export default define.page(function App({ Component }) {
         <title>deno-sandbox-memo</title>
       </head>
       <body>
+        <header class="site-header">
+          <div class="site-header__inner">
+            <a class="brand" href="/">
+              Deno Sandbox Memo by git
+            </a>
+            <nav class="site-nav">
+              <a href="/">All notes</a>
+              <a class="pill" href="/new">New note</a>
+            </nav>
+          </div>
+        </header>
         <Component />
       </body>
     </html>
