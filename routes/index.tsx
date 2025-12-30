@@ -1,6 +1,6 @@
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
-import { getStorageApi } from "../lib/sandoboxGit.ts";
+import { getStorageApi } from "../lib/sandboxGit.ts";
 import { fetchCache } from "../lib/kvCache.ts";
 
 export default define.page(async function Home() {

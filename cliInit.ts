@@ -1,3 +1,3 @@
-import { initSandBoxStorage } from "./lib/sandoboxGit.ts";
+import { initSandBoxStorage } from "./lib/sandboxGit.ts";
 
 initSandBoxStorage();

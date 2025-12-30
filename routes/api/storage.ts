@@ -1,6 +1,6 @@
 import { define } from "../../utils.ts";
 import { errorResponse, parseBody, redirectResponse } from "../../lib/http.ts";
-import { getStorageApi } from "../../lib/sandoboxGit.ts";
+import { getStorageApi } from "../../lib/sandboxGit.ts";
 import { deleteCache } from "../../lib/kvCache.ts";
 
 export const handler = define.handlers({
