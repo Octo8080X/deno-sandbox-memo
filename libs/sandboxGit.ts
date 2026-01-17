@@ -131,15 +131,15 @@ export async function initSandBoxStorage() {
     await sandbox.sh`dpkg -x /tmp/git_* /data/git/app`.sudo();
     await sandbox.sh`dpkg -x /tmp/git-man_* /data/git/app`.sudo();
     await sandbox
-      .sh`sh -c 'set -e; ldd /data/git/app/usr/bin/git | awk "/=>/ {print $3}" | grep -E "^/" | while read -r path; do echo "lib: $path"; cp -n "$path" /data/git/libs/; done'`
+      .sh`sh -c 'set -e; ldd /data/git/app/usr/bin/git | awk "/=>/ {print $3}" | grep -E "^/" | while read -r path; do echo "lib: $path"; cp -n "$path" /data/git/lib/; done'`
       .sudo();
     await sandbox.sh`sh -c 'cat <<"EOF" > /data/git/git
-  #!/bin/sh
-  export LD_LIBRARY_PATH=/data/git/lib:\${LD_LIBRARY_PATH}
-  export GIT_EXEC_PATH=/data/git/app/usr/libexec/git-core
-  export PATH=/data/git/app/usr/bin:/data/git/app/usr/libexec/git-core:\${PATH}
-  exec /data/git/app/usr/bin/git "$@"
-  EOF'`.sudo();
+#!/bin/sh
+export LD_LIBRARY_PATH=/data/git/lib:\${LD_LIBRARY_PATH}
+export GIT_EXEC_PATH=/data/git/app/usr/libexec/git-core
+export PATH=/data/git/app/usr/bin:/data/git/app/usr/libexec/git-core:\${PATH}
+exec /data/git/app/usr/bin/git "$@"
+EOF'`.sudo();
     await sandbox.sh`chmod +x /data/git/git`.sudo();
     await sandbox.sh`/data/git/git --version`.sudo();
     console.log(await sandbox.sh`ls -la /data/git | head`.text());

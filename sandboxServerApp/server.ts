@@ -7,24 +7,43 @@ const PASSPHRASE_ENV = "CALLER_PASSPHRASE"; // 呼び出し元パスフレーズ
 const app = new Hono();
 
 const STORAGE_DIR = "/data/storage";
+const GIT_BIN = "/data/git/git";
+const textDecoder = new TextDecoder();
 
+
+type GitOutput = {
+  stdout: string;
+  stderr: string;
+};
 
 async function runGit(
   args: string[],
   options: { cwd?: string; allowFailure?: boolean } = {},
-): Promise<string> {
-  const command = new Deno.Command("git", {
+): Promise<GitOutput> {
+  const command = new Deno.Command(GIT_BIN, {
     args,
-    cwd: "/data/git",
+    cwd: options.cwd ?? STORAGE_DIR,
+    env: {
+      GIT_CONFIG_GLOBAL: "/data/git/.gitconfig",
+    },
+    stdout: "piped",
+    stderr: "piped",
   });
-  const output = await command.outputSync();
-  const textDecoder = new TextDecoder();
+  const output = await command.output();
   const stdoutText = textDecoder.decode(output.stdout);
+  const stderrText = textDecoder.decode(output.stderr);
   if (output.code !== 0 && !options.allowFailure) {
-    const stderrText = textDecoder.decode(output.stderr);
     throw new Error(stderrText || `git exited with ${output.code}`);
   }
-  return stdoutText;
+  return { stdout: stdoutText, stderr: stderrText };
+}
+
+function mergeGitStdout(outputs: GitOutput[]) {
+  return outputs.map((o) => o.stdout).filter(Boolean).join("\n");
+}
+
+function mergeGitStderr(outputs: GitOutput[]) {
+  return outputs.map((o) => o.stderr).filter(Boolean).join("\n");
 }
 
 async function listFiles(): Promise<string[]> {
@@ -37,40 +56,7 @@ async function listFiles(): Promise<string[]> {
   return entries;
 }
 
-async function getCommits(fileName: string) {
-  const target = fileName.endsWith(".md") ? fileName : `${fileName}.md`;
-  const pathArg = target.startsWith("./") ? target : `./${target}`;
 
-  const tracked = await runGit(["ls-files", "--", pathArg], {
-    allowFailure: true,
-  });
-  if (!tracked.trim()) {
-    return [] as Array<
-      {
-        hash: string;
-        author: string;
-        email: string;
-        date: string;
-        message: string;
-      }
-    >;
-  }
-
-  const raw = await runGit([
-    "log",
-    '--pretty=format:%H|%an|%ae|%ad|%s',
-    "--date=iso",
-    "--",
-    pathArg,
-  ], { allowFailure: true });
-
-  const lines = raw.trim().split("\n").filter(Boolean);
-  return lines.map((line) => {
-    const [hash, author, email, date, ...messageParts] = line.split("|");
-    const message = messageParts.join("|");
-    return { hash, author, email, date, message };
-  });
-}
 
 async function getFileContent(fileName: string): Promise<string | null> {
   try {
@@ -84,57 +70,78 @@ async function getFileAtCommit(
   fileName: string,
   commit: string,
   opts: { parent?: boolean } = {},
-): Promise<string | null> {
+): Promise<{ content: string | null; gitStdout: string; gitStderr: string }> {
   const target = fileName.endsWith(".md") ? fileName : `${fileName}.md`;
   const pathArg = target.startsWith("./") ? target : `./${target}`;
   const ref = opts.parent ? `${commit}^` : commit;
   try {
-    return await runGit(["show", `${ref}:${pathArg}`], { allowFailure: false });
+    const output = await runGit(["show", `${ref}:${pathArg}`], {
+      allowFailure: false,
+    });
+    return {
+      content: output.stdout,
+      gitStdout: output.stdout,
+      gitStderr: output.stderr,
+    };
   } catch (_err) {
-    return null;
+    return { content: null, gitStdout: "", gitStderr: "" };
   }
 }
 
-async function getDiff(fileName: string, commit: string): Promise<string | null> {
+async function getDiff(
+  fileName: string,
+  commit: string,
+): Promise<{ diff: string | null; gitStdout: string; gitStderr: string }> {
   const target = fileName.endsWith(".md") ? fileName : `${fileName}.md`;
   const pathArg = target.startsWith("./") ? target : `./${target}`;
   try {
-    return await runGit(["show", commit, "--", pathArg], {
+    const output = await runGit(["show", commit, "--", pathArg], {
       allowFailure: false,
     });
+    return { diff: output.stdout, gitStdout: output.stdout, gitStderr: output.stderr };
   } catch (_err) {
-    return null;
+    return { diff: null, gitStdout: "", gitStderr: "" };
   }
 }
 
 async function restoreFileFromCommit(fileName: string, commit: string) {
   const target = fileName.endsWith(".md") ? fileName : `${fileName}.md`;
   const pathArg = target.startsWith("./") ? target : `./${target}`;
-  const content = await runGit(["show", `${commit}:${pathArg}`]);
-  await Deno.writeTextFile(`${STORAGE_DIR}/${target}`, content);
-  await runGit(["add", target], { allowFailure: true });
-  await runGit([
+  const outputs: GitOutput[] = [];
+  const showOutput = await runGit(["show", `${commit}:${pathArg}`]);
+  outputs.push(showOutput);
+  await Deno.writeTextFile(`${STORAGE_DIR}/${target}`, showOutput.stdout);
+  outputs.push(await runGit(["add", target], { allowFailure: true }));
+  outputs.push(await runGit([
     "commit",
     "-m",
     `restore ${target} to ${commit}`,
-  ], { allowFailure: true });
-  return true;
+  ], { allowFailure: true }));
+  return {
+    ok: true,
+    gitStdout: mergeGitStdout(outputs),
+    gitStderr: mergeGitStderr(outputs),
+  };
 }
 
 async function updateFileContent(fileName: string, content: string) {
+  const outputs: GitOutput[] = [];
   await Deno.writeTextFile(`${STORAGE_DIR}/${fileName}`, content);
-  await runGit(["add", fileName], { allowFailure: true });
-  await runGit([
+  outputs.push(await runGit(["add", fileName], { allowFailure: true }));
+  outputs.push(await runGit([
     "commit",
     "-m",
     `update ${fileName}`,
-  ], { allowFailure: true });
+  ], { allowFailure: true }));
+  return {
+    gitStdout: mergeGitStdout(outputs),
+    gitStderr: mergeGitStderr(outputs),
+  };
 }
 
-
-
 async function getStatus() {
-  return await runGit(["status"], { allowFailure: true });
+  const output = await runGit(["status"], { allowFailure: true });
+  return { status: output.stdout, gitStdout: output.stdout, gitStderr: output.stderr };
 }
 
 function validateCaller(c: Context) {
@@ -149,6 +156,13 @@ function validateCaller(c: Context) {
   }
 
   return null;
+}
+
+function errorMessage(err: unknown, fallback: string) {
+  if (err instanceof Error && err.message) {
+    return `${fallback}: ${err.message}`;
+  }
+  return fallback;
 }
 
 app.get("/", (c: Context) => {
@@ -167,9 +181,57 @@ app.get("/files", async (c: Context) => {
     return c.json({ files });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to list files", 500);
+    return c.text(errorMessage(err, "Failed to list files"), 500);
   }
 });
+
+async function getCommits(fileName: string) {
+  const target = fileName.endsWith(".md") ? fileName : `${fileName}.md`;
+  const pathArg = target.startsWith("./") ? target : `./${target}`;
+
+  const outputs: GitOutput[] = [];
+  const tracked = await runGit(["ls-files", "--", pathArg], {
+    allowFailure: true,
+  });
+  outputs.push(tracked);
+  if (!tracked.stdout.trim()) {
+    return {
+      commits: [] as Array<
+        {
+          hash: string;
+          author: string;
+          email: string;
+          date: string;
+          message: string;
+        }
+      >,
+      gitStdout: mergeGitStdout(outputs),
+      gitStderr: mergeGitStderr(outputs),
+    };
+  }
+
+  const raw = await runGit([
+    "log",
+    '--pretty=format:%H|%an|%ae|%ad|%s',
+    "--date=iso",
+    "--",
+    pathArg,
+  ], { allowFailure: true });
+  outputs.push(raw);
+
+  const lines = raw.stdout.trim().split("\n").filter(Boolean);
+  const commits = lines.map((line) => {
+    const [hash, author, email, date, ...messageParts] = line.split("|");
+    const message = messageParts.join("|");
+    return { hash, author, email, date, message };
+  });
+
+  return {
+    commits,
+    gitStdout: mergeGitStdout(outputs),
+    gitStderr: mergeGitStderr(outputs),
+  };
+}
 
 app.get("/commits", async (c: Context) => {
   const res = validateCaller(c);
@@ -180,11 +242,14 @@ app.get("/commits", async (c: Context) => {
     return c.text("Missing fileName", 400);
   }
   try {
-    const commits = await getCommits(fileName);
-    return c.json({ commits });
+    const { commits, gitStdout, gitStderr } = await getCommits(fileName);
+    return c.json({ commits, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to get commits", 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to get commits"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 
@@ -205,7 +270,7 @@ app.post("/file_content", async (c: Context) => {
     return c.json({ content });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to get file content", 500);
+    return c.text(errorMessage(err, "Failed to get file content"), 500);
   }
 });
 
@@ -221,14 +286,21 @@ app.post("/file_at_commit", async (c: Context) => {
     return c.text("Missing fileName or commit", 400);
   }
   try {
-    const content = await getFileAtCommit(fileName, commit, { parent });
+    const { content, gitStdout, gitStderr } = await getFileAtCommit(
+      fileName,
+      commit,
+      { parent },
+    );
     if (content === null) {
       return c.text("File not found", 404);
     }
-    return c.json({ content });
+    return c.json({ content, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to get file at commit", 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to get file at commit"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 
@@ -243,14 +315,17 @@ app.post("/diff", async (c: Context) => {
     return c.text("Missing fileName or commit", 400);
   }
   try {
-    const diff = await getDiff(fileName, commit);
+    const { diff, gitStdout, gitStderr } = await getDiff(fileName, commit);
     if (diff === null) {
       return c.text("Diff not found", 404);
     }
-    return c.json({ diff });
+    return c.json({ diff, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to get diff", 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to get diff"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 
@@ -265,24 +340,35 @@ app.post("/restore_file", async (c: Context) => {
     return c.text("Missing fileName or commit", 400);
   }
   try {
-    const ok = await restoreFileFromCommit(fileName, commit);
-    return c.json({ ok });
+    const { ok, gitStdout, gitStderr } = await restoreFileFromCommit(
+      fileName,
+      commit,
+    );
+    return c.json({ ok, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to restore file", 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to restore file"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 
 async function createFile(content: string) {
   const fileName = `${crypto.randomUUID()}.md`;
+  const outputs: GitOutput[] = [];
   await Deno.writeTextFile(`${STORAGE_DIR}/${fileName}`, content);
-  await runGit(["add", fileName], { allowFailure: true });
-  await runGit([
+  outputs.push(await runGit(["add", fileName], { allowFailure: true }));
+  outputs.push(await runGit([
     "commit",
     "-m",
     `create ${fileName}`,
-  ], { allowFailure: true });
-  return fileName;
+  ], { allowFailure: true }));
+  return {
+    fileName,
+    gitStdout: mergeGitStdout(outputs),
+    gitStderr: mergeGitStderr(outputs),
+  };
 }
 
 app.post("/create_file", async (c: Context) => {
@@ -299,11 +385,14 @@ app.post("/create_file", async (c: Context) => {
 
 
   try {
-    const fileName = await createFile(content);
-    return c.json({ fileName });
+    const { fileName, gitStdout, gitStderr } = await createFile(content);
+    return c.json({ fileName, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text(`Failed to create file ${err}`, 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to create file"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 
@@ -319,11 +408,14 @@ app.post("/update_file", async (c: Context) => {
     return c.text("Missing fileName", 400);
   }
   try {
-    await updateFileContent(fileName, content);
-    return c.json({ ok: true });
+    const { gitStdout, gitStderr } = await updateFileContent(fileName, content);
+    return c.json({ ok: true, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to update file", 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to update file"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 
@@ -332,11 +424,14 @@ app.get("/status", async (c: Context) => {
   if (res) return res;
 
   try {
-    const status = await getStatus();
-    return c.json({ status });
+    const { status, gitStdout, gitStderr } = await getStatus();
+    return c.json({ status, gitStdout, gitStderr });
   } catch (err) {
     console.error(err);
-    return c.text("Failed to get status", 500);
+    return c.json(
+      { error: errorMessage(err, "Failed to get status"), gitStdout: "", gitStderr: "" },
+      500,
+    );
   }
 });
 

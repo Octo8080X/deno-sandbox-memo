@@ -1,7 +1,7 @@
-import { Context} from "fresh";
-import { Head} from "fresh/runtime";
-import { define, State } from "../utils.ts";
-import { getCache} from "../libs/kvCache.ts";
+import { Head } from "fresh/runtime";
+import { define } from "../utils.ts";
+import { getCache } from "../libs/kvCache.ts";
+import { fetchSandboxApi } from "../libs/connectSandboxGit.ts";
 
 export default define.page(async function Home(ctx) {
 
@@ -10,12 +10,7 @@ export default define.page(async function Home(ctx) {
 
   let files: string[] = []
   if(await getCache("git_files") == null) {
-    const resp = await fetch(`${ctx.state.server_app_public_url}/files`, {
-      method: "GET",
-      headers: {
-        "X-App-Header": ctx.state.server_app_pass_phrase,
-      },
-    });
+    const resp = await fetchSandboxApi(ctx.state, "/files", { method: "GET" });
 
     if (!resp.ok) {
       const message = await resp.text();

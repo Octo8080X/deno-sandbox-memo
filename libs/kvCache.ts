@@ -1,7 +1,7 @@
-//// <reference lib="deno.unstable" />
+/// <reference lib="deno.unstable" />
 const CACHE_KEY = `kvCache` as const;
 
-const store = await Deno.openKv(":memory:");
+const store = Deno.env.get("APP_ENV") == "develop" ?  await Deno.openKv(":memory:") : await Deno.openKv();
 
 export function getCacheKey(key: string): string[] {
   return [CACHE_KEY, key];
@@ -17,9 +17,14 @@ export async function setCache<T>(
 
 export async function getCache<T>(id: string): Promise<T | null> {
   const key = getCacheKey(id);
-  const val = await store.get<string>(key);
+  const val = await store.get<T>(key);
 
   return val.value ?? null;
+}
+
+export async function deleteCache(id: string): Promise<void> {
+  const key = getCacheKey(id);
+  await store.delete(key);
 }
 
 export async function fetchCache<T>(

@@ -12,6 +12,30 @@ type SandboxConnectInfo ={
     passPhrase: string;
 }
 
+export type SandboxRequestState = {
+  server_app_public_url: string;
+  server_app_pass_phrase: string;
+};
+
+export async function fetchSandboxApi(
+  state: SandboxRequestState,
+  path: string,
+  init: (RequestInit & { json?: unknown }) = {},
+): Promise<Response> {
+  const headers = new Headers(init.headers);
+  headers.set("X-App-Header", state.server_app_pass_phrase);
+
+  let body = init.body;
+  if (init.json !== undefined) {
+    headers.set("content-type", "application/json");
+    body = JSON.stringify(init.json);
+  }
+
+  const { json: _json, ...rest } = init;
+  const url = new URL(path, state.server_app_public_url);
+  return await fetch(url.toString(), { ...rest, headers, body });
+}
+
 export async function ensureServerAppReady(): Promise<SandboxConnectInfo> {
   const publicUrl = await getCache<string>("server_app_public_url");
   const passPhrase = await getCache<string>("server_app_pass_phrase");

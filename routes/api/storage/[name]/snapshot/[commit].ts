@@ -1,23 +1,44 @@
 import { define } from "../../../../../utils.ts";
 import { errorResponse, jsonResponse } from "../../../../../libs/http.ts";
-import { getStorageApi } from "../../../../../libs/sandboxGit.ts";
+import { fetchSandboxApi } from "../../../../../libs/connectSandboxGit.ts";
 import { fetchCache } from "../../../../../libs/kvCache.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
-    const { getFileAtCommit } = await getStorageApi();
     try {
       const [before, after] = await Promise.all([
         fetchCache(
           `${ctx.params.name}-${ctx.params.commit}`,
-          () =>
-            getFileAtCommit(`${ctx.params.name}`, ctx.params.commit, {
-              parent: true,
-            }),
+          120,
+          async () => {
+            const resp = await fetchSandboxApi(ctx.state, "/file_at_commit", {
+              method: "POST",
+              json: {
+                fileName: `${ctx.params.name}`,
+                commit: ctx.params.commit,
+                parent: true,
+              },
+            });
+            if (!resp.ok) return null;
+            const data = await resp.json();
+            return (data as { content?: string }).content ?? null;
+          },
         ),
         fetchCache(
           `${ctx.params.name}-${ctx.params.commit}`,
-          () => getFileAtCommit(`${ctx.params.name}`, ctx.params.commit),
+          120,
+          async () => {
+            const resp = await fetchSandboxApi(ctx.state, "/file_at_commit", {
+              method: "POST",
+              json: {
+                fileName: `${ctx.params.name}`,
+                commit: ctx.params.commit,
+              },
+            });
+            if (!resp.ok) return null;
+            const data = await resp.json();
+            return (data as { content?: string }).content ?? null;
+          },
         ),
       ]);
 
