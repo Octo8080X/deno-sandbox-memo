@@ -1,12 +1,33 @@
-import { Head } from "fresh/runtime";
-import { define } from "../utils.ts";
-import { getStorageApi } from "../lib/sandboxGit.ts";
-import { fetchCache } from "../lib/kvCache.ts";
+import { Context} from "fresh";
+import { Head} from "fresh/runtime";
+import { define, State } from "../utils.ts";
+import { getCache} from "../libs/kvCache.ts";
 
-export default define.page(async function Home() {
-  // sandbox 経由でファイルの一覧を取得
-  const { getFiles } = await getStorageApi();
-  const files = await fetchCache<string[]>("home_files", getFiles) as string[];
+export default define.page(async function Home(ctx) {
+
+
+  console.log(ctx)
+
+  let files: string[] = []
+  if(await getCache("git_files") == null) {
+    const resp = await fetch(`${ctx.state.server_app_public_url}/files`, {
+      method: "GET",
+      headers: {
+        "X-App-Header": ctx.state.server_app_pass_phrase,
+      },
+    });
+
+    if (!resp.ok) {
+      const message = await resp.text();
+      return new Response(
+        JSON.stringify({ error: message || "convert failed" }),
+        { status: 502, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    files = (await resp.json())["files"]
+  }
+
+  console.log("Fetching files from server app sandbox...");
 
   return (
     <div class="max-w-5xl mx-auto px-4 py-10 space-y-4">

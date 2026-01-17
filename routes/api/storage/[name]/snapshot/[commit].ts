@@ -1,7 +1,7 @@
 import { define } from "../../../../../utils.ts";
-import { errorResponse, jsonResponse } from "../../../../../lib/http.ts";
-import { getStorageApi } from "../../../../../lib/sandboxGit.ts";
-import { fetchCache } from "../../../../../lib/kvCache.ts";
+import { errorResponse, jsonResponse } from "../../../../../libs/http.ts";
+import { getStorageApi } from "../../../../../libs/sandboxGit.ts";
+import { fetchCache } from "../../../../../libs/kvCache.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
