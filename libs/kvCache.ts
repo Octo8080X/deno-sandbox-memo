@@ -1,7 +1,7 @@
 /// <reference lib="deno.unstable" />
 const CACHE_KEY = `kvCache` as const;
 
-const store = Deno.env.get("APP_ENV") == "develop" ?  await Deno.openKv(":memory:") : await Deno.openKv();
+const store = Deno.env.get("APP_ENV") == "dev" ?  await Deno.openKv(":memory:") : await Deno.openKv();
 
 export function getCacheKey(key: string): string[] {
   return [CACHE_KEY, key];

@@ -16,7 +16,7 @@ app.use(cors(
       "GET",
       "PUT",
     ],
-    credentials: Deno.env.get("APP_ENV") === "production" ? false : true,
+    credentials: Deno.env.get("APP_ENV") === "prod" ? false : true,
   },
 ));
 

@@ -2,7 +2,7 @@ import { Client, Sandbox, SandboxOptions, Volume } from "@deno/sandbox";
 
 const GIT_STORAGE_VOLUME_NAME = "git-storage-volume";
 const SERVER_APP_STORAGE_VOLUME_NAME = "git-server-app-storage-volume";
-const DATA_STORAGE_VOLUME_NAME = "git-data-storage-volume";
+const DATA_STORAGE_VOLUME_NAME = `${Deno.env.get("APP_ENV")}-git-data-storage-volume`
 
 async function getStorageVolume(slug: string) {
   const client = new Client();
