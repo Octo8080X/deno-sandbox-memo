@@ -3,10 +3,18 @@ import { errorResponse, jsonResponse } from "../../../../libs/http.ts";
 import { fetchSandboxApi } from "../../../../libs/connectSandboxGit.ts";
 import { fetchCache } from "../../../../libs/kvCache.ts";
 
+interface CommitEntry {
+  hash: string;
+  author: string;
+  email: string;
+  date: string;
+  message: string;
+}
+
 export const handler = define.handlers({
   async GET(ctx) {
     try {
-      const commits = await fetchCache<{}>(
+      const commits = await fetchCache<CommitEntry[]>(
         `commits-${ctx.params.name}.md`,
         120,
         async () => {
@@ -14,14 +22,11 @@ export const handler = define.handlers({
             method: "GET",
           });
 
-          console.log("Commits response:", resp);
-
           if (!resp.ok) {
             return null;
           }
           const data = await resp.json();
-          console.log("Commits data:", data);
-          return (data as { commits?: {} }).commits ?? null;
+          return (data as { commits?: CommitEntry[] }).commits ?? null;
         },
       );
 

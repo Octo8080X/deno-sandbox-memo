@@ -57,7 +57,10 @@ export async function ensureServerAppReady(): Promise<SandboxConnectInfo> {
       SERVER_APP_ENTRYPOINT,
       {
         ...SERVER_APP_SANDBOX_OPTIONS,
-        env: { CALLER_PASSPHRASE: newPassPhrase },
+        env: {
+          ...SERVER_APP_SANDBOX_OPTIONS.env,
+          CALLER_PASSPHRASE: newPassPhrase,
+        },
       },
     );
 

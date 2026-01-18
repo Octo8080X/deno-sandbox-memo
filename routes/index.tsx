@@ -1,15 +1,15 @@
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
-import { getCache } from "../libs/kvCache.ts";
+import { getCache, setCache } from "../libs/kvCache.ts";
 import { fetchSandboxApi } from "../libs/connectSandboxGit.ts";
 
 export default define.page(async function Home(ctx) {
-
-
-  console.log(ctx)
-
-  let files: string[] = []
-  if(await getCache("git_files") == null) {
+  let files: string[] = [];
+  const cachedFiles = await getCache<string[]>("git_files");
+  
+  if (cachedFiles) {
+    files = cachedFiles;
+  } else {
     const resp = await fetchSandboxApi(ctx.state, "/files", { method: "GET" });
 
     if (!resp.ok) {
@@ -19,10 +19,9 @@ export default define.page(async function Home(ctx) {
         { status: 502, headers: { "Content-Type": "application/json" } },
       );
     }
-    files = (await resp.json())["files"]
+    files = (await resp.json())["files"];
+    await setCache("git_files", files, 120);
   }
-
-  console.log("Fetching files from server app sandbox...");
 
   return (
     <div class="max-w-5xl mx-auto px-4 py-10 space-y-4">

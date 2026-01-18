@@ -8,7 +8,7 @@ export const handler = define.handlers({
     try {
       const [before, after] = await Promise.all([
         fetchCache(
-          `${ctx.params.name}-${ctx.params.commit}`,
+          `${ctx.params.name}-${ctx.params.commit}-before`,
           120,
           async () => {
             const resp = await fetchSandboxApi(ctx.state, "/file_at_commit", {
@@ -25,7 +25,7 @@ export const handler = define.handlers({
           },
         ),
         fetchCache(
-          `${ctx.params.name}-${ctx.params.commit}`,
+          `${ctx.params.name}-${ctx.params.commit}-after`,
           120,
           async () => {
             const resp = await fetchSandboxApi(ctx.state, "/file_at_commit", {

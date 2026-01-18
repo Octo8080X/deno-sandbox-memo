@@ -69,24 +69,23 @@ const buildGitSandboxOptions = (volumes: Record<string, string>): SandboxOptions
 export async function isRunningSandbox(sandboxId: string): Promise<boolean> {
   const client = new Client();
 
-  const sandboxes = await client.sandboxes.list()
-  console.log(sandboxes);
+  const sandboxes = await client.sandboxes.list();
   for (const sandbox of sandboxes) {
     if (sandbox.id === sandboxId && sandbox.status === "running") {
-      console.log(`Sandbox ${sandboxId} is found in the list.`);
+      console.info(`Sandbox ${sandboxId} is found in the list.`);
       return true;
     }
   }
-  console.log(`Sandbox ${sandboxId} is not found in the list.`);
+  console.info(`Sandbox ${sandboxId} is not found in the list.`);
   return false;
   
 }
 
-export const startServerAppSandbox = async <T>(
+export const startServerAppSandbox = async (
   entrypoint: string,
   options?: SandboxOptions,
 ): Promise<{publicUrl: string, sandboxId: string}> => {
-  console.log("startServerAppSandbox options:", options);
+  console.info("startServerAppSandbox options:", options);
   await using sandbox = await createSandbox(options);
   await sandbox.deno.run({ entrypoint });
   const publicUrl = await sandbox.exposeHttp({ port: 3000 });

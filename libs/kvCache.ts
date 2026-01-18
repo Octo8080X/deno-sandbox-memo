@@ -31,17 +31,16 @@ export async function fetchCache<T>(
   key: string,
   expireIn: number = 120,
   func: () => Promise<T | null>,
-) {
-  console.log("fetchCache key:", key);
-  let res = await getCache<T | string[] | string>(key);
-  console.log("fetchCache res:", res);
+): Promise<T | null> {
+  const res = await getCache<T>(key);
 
   if (!res) {
-    res = await func();
-    if (res == null) {
+    const newRes = await func();
+    if (newRes == null) {
       return null;
     }
-    await setCache(key, res, expireIn);
+    await setCache(key, newRes, expireIn);
+    return newRes;
   }
   return res;
 }

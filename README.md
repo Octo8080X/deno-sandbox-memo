@@ -10,7 +10,9 @@ A memo application that uses Deno Sandbox to run git commands securely.
 Create a `.env` at the project root before setup. Minimum required values:
 
 ```
-SANDBOX_GIT_BASE=<absolute path to the working repo dir>
+DENO_DEPLOY_TOKEN=<your Deno Deploy token>
+APP_ORIGIN=<application origin URL, e.g., http://localhost:8000>
+APP_ENV=dev or prod
 ```
 
 ## Setup

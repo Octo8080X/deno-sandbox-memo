@@ -34,7 +34,6 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
     };
 
     if (content.value === null) {
-      console.log(`Fetching content for file: ${name}`);
       fetchContent();
     }
   }, []);
@@ -43,7 +42,7 @@ export default function FileEditor({ name, sync }: FileEditorProps) {
     status.value = "saving";
     message.value = "";
     try {
-      const res = await fetch(`/api/storage/${name}`, {
+      const res = await fetch(`/api/storage/${encodeURIComponent(name)}`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ content: content.value }),

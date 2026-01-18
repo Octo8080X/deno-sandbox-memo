@@ -17,8 +17,6 @@ export const handler = define.handlers({
         json: { content },
       });
 
-      console.log("Create file response:", resp);
-
       if (!resp.ok) {
         const message = await resp.text();
         return errorResponse(message || "Failed to create file", 502);

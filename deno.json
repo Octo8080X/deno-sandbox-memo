@@ -27,6 +27,7 @@
   "imports": {
     "@/": "./",
     "@deno/sandbox": "jsr:@deno/sandbox@^0.8.0",
+    "@hono/hono": "jsr:@hono/hono@^4.11.4",
     "daisyui": "npm:daisyui@^5.5.14",
     "fresh": "jsr:@fresh/core@^2.2.0",
     "preact": "npm:preact@^10.27.2",

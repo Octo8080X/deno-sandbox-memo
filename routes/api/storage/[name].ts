@@ -13,17 +13,12 @@ export const handler = define.handlers({
         json: { fileName: `${ctx.params.name}.md`, content },
       });
 
-
-      console.log("Update file response:", resp);
-
-
-
       if (!resp.ok) {
         const message = await resp.text();
         return errorResponse(message || "Failed to save file", 502);
       }
 
-      console.log("Saving to cache:", await resp.json());
+      await resp.json();
 
       await setCache(`${ctx.params.name}.md`, content);
       await deleteCache(`commits-${ctx.params.name}.md`);
