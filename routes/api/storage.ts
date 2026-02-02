@@ -1,6 +1,7 @@
 import { define } from "../../utils.ts";
 import { errorResponse, parseBody, redirectResponse } from "../../libs/http.ts";
 import { fetchSandboxApi } from "../../libs/connectSandboxGit.ts";
+import { deleteCache } from "../../libs/kvCache.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -19,6 +20,7 @@ export const handler = define.handlers({
 
       if (!resp.ok) {
         const message = await resp.text();
+        deleteCache("git_files");
         return errorResponse(message || "Failed to create file", 502);
       }
 
