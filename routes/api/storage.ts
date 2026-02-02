@@ -20,9 +20,9 @@ export const handler = define.handlers({
 
       if (!resp.ok) {
         const message = await resp.text();
-        deleteCache("git_files");
         return errorResponse(message || "Failed to create file", 502);
       }
+      deleteCache("git_files");
 
       return redirectResponse(`/`);
     } catch (err) {
