@@ -24,7 +24,7 @@ async function getStorageVolume(slug: string) {
 
 const createSandbox = async (options?: SandboxOptions) => {
   const sandbox = await Sandbox.create({
-    memoryMb: 4096,
+    memory: "1GB",
     region: "ord",
     ...options,
   });
@@ -35,7 +35,9 @@ const withSandbox = async <T>(
   fn: (sandbox: Sandbox) => Promise<T>,
   options?: SandboxOptions,
 ): Promise<T> => {
+  console.info("Starting withSandbox...");
   await using sandbox = await createSandbox(options);
+  console.info(`Sandbox ID: ${sandbox.id}`);
   return await fn(sandbox);
 };
 
@@ -50,7 +52,7 @@ export const SERVER_APP_SANDBOX_OPTIONS: SandboxOptions = {
     GIT_CONFIG_GLOBAL: "/data/git/.gitconfig",
   },
   region: "ord",
-  memoryMb: 4096,
+  memory: "1GB",
   timeout: "10m",
 };
 
@@ -62,7 +64,7 @@ const buildGitSandboxOptions = (volumes: Record<string, string>): SandboxOptions
       GIT_CONFIG_GLOBAL: "/data/git/.gitconfig",
     },
     region: "ord",
-    memoryMb: 4096,
+    memory: "1GB",
   };
 };
 
@@ -118,7 +120,8 @@ export async function initSandBoxStorage() {
     console.log("initialize volume on sandbox");
 
     console.log("apt update");
-    await sandbox.sh`apt-get update > /dev/null 2>&1`.sudo();
+    // Use -o Acquire::Check-Valid-Until=false to avoid expired release file errors with snapshot repos
+    await sandbox.sh`apt-get update -o Acquire::Check-Valid-Until=false > /dev/null 2>&1`.sudo();
 
     console.log("install git");
     await sandbox.sh`apt-get install -y git`.sudo();
